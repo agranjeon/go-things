@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"image"
-	"image/jpeg"
+	_ "image/jpeg"
 	"image/png"
 	"math"
 	"os"
@@ -23,9 +23,12 @@ func getImageFromFilePath(filePath string) (image.Image, string, error) {
 }
 
 func writeImage(filePath string, myImage image.Image, imageType string, sourceDir string, index int) error {
-	// Save the files
+	// Save the files as PNG, because png is cool and autofills remaining pixels with transparent
+	// Big respect to PNG
 	filename := strings.Replace(filePath, sourceDir+string(os.PathSeparator), "", 1)
-	filename = "dest" + string(os.PathSeparator) + strconv.Itoa(index) + "-" + filename
+	filename = strings.TrimSuffix(filename, filepath.Ext(filename))
+	filename = "dest" + string(os.PathSeparator) + strconv.Itoa(index) + "-" + filename + ".png"
+	fmt.Println(filename)
 	f, err := os.Create(filename)
 	if err != nil {
 		panic(err)
@@ -33,17 +36,8 @@ func writeImage(filePath string, myImage image.Image, imageType string, sourceDi
 	defer f.Close()
 
 	fmt.Println("Writing image " + filename)
-	if imageType == "jpeg" {
-		opt := jpeg.Options{
-			Quality: 100,
-		}
-		err = jpeg.Encode(f, myImage, &opt)
-		if err != nil {
-			// Handle error (ou pas xd) j'ai la flemz
-		}
-	} else {
-		err = png.Encode(f, myImage)
-	}
+	err = png.Encode(f, myImage)
+
 	return err
 }
 
@@ -66,6 +60,7 @@ func main() {
 
 		// read file, get its width / height and calculate the number of height in width
 		myImage, imageType, _ := getImageFromFilePath(file)
+
 		bounds := myImage.Bounds()
 		width := bounds.Max.X
 		height := bounds.Max.Y
@@ -95,11 +90,6 @@ func main() {
 						fakeY++
 					}
 					fakeX++
-				}
-				for x := fakeX; x < mySubImage.Bounds().Max.X; x++ {
-					for y := 0; y < height; y++ {
-						mySubImage.Set(x, y, myImage.At(0, 0))
-					}
 				}
 				subImage = mySubImage
 			}
