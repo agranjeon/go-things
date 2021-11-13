@@ -27,7 +27,7 @@ func writeImage(filePath string, myImage image.Image, imageType string, sourceDi
 	// Big respect to PNG
 	filename := strings.Replace(filePath, sourceDir+string(os.PathSeparator), "", 1)
 	filename = strings.TrimSuffix(filename, filepath.Ext(filename))
-	filename = "dest" + string(os.PathSeparator) + strconv.Itoa(index) + "-" + filename + ".png"
+	filename = "dest" + string(os.PathSeparator) + filename + "-" + strconv.Itoa(index) + ".png"
 	fmt.Println(filename)
 	f, err := os.Create(filename)
 	if err != nil {
